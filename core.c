@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "token.h"
 #include "parse.h"
+#include "trie.h"
+#include "list.h"
 
 #define list_t 0
 #define sym_t  1
@@ -79,19 +81,24 @@ void addmatcher(tokenizer* t, void* f) {
 	listadd(t->matchers, (token*(*)(char*))f);
 }
 
+void tp(sexp* s) {
+	tokenprint(s->data);
+}
+
 int main() {
 	tokenizer* t = newtokenizer();
 	addmatcher(t, &opmmatch);
 	addmatcher(t, &cpmmatch);
 	addmatcher(t, &symmatch);
-	list* tks = tokenize(t, "(def foo bar)");
-	listwalk(tks, (void(*)(void*))tokenprint);
+	list* tks = tokenize(t, "(+ (+ 2 3) 5)");
 	
+	parser* p = newparser(parse);
+	addstrat(p, "symbol", &symp);
+	addstrat(p, "(", &opp);
+	sexp* s = parse(p, tks);
+	sexpprint(s);
 
-	
-
-
-	listwalk(tks, (void(*)(void*))tokendelete);
+	listwalk(tks, (void*)tokendelete);
 	listdelete(tks);
 	listdelete(t->matchers);
 	free(t);

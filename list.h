@@ -1,3 +1,6 @@
+#ifndef LIST_H
+#define LIST_H
+
 #include <stdlib.h>
 #include "pgs.h"
 #include "closure.h"
@@ -26,3 +29,5 @@ void* listnth(list* l, int n);
 void listwalk(list* l, void (*)(void*));
 void listclosurewalk(list* l, closure c);
 void* listasarray(list* l);
+
+#endif

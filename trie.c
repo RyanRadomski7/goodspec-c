@@ -37,14 +37,6 @@ tnode* nodeget(tnode* n, const char* k) {
 	return f ? nodeget(f->down, k+1) : nil;
 }
 
-void nodeprint(int indent, tnode* n) {
-	if(!n) return;
-	for(int i = 0; i < indent; i++) printf(" ");
-	printf("%c\n", n->k);
-	nodeprint(indent+1, n->down);
-	nodeprint(indent, n->next);
-}
-
 void* nodepop(tnode* n) {
 	void* data = n->data;
 	n->data = nil;
@@ -61,7 +53,7 @@ void* triepop(trie* t, const char* k) {
 void* trieget(trie* t, const char* k) {
 	if(!t) return nil;
 	tnode* n = nodeget(t->root, k);
-	return n ? n : nil;
+	return n ? n->data : nil;
 }
 
 tnode* nodepush(tnode* n, char k) {
@@ -86,4 +78,16 @@ void triedelete(trie* t) {
 	if(!t) return;
 	nodedelete(t->root);
 	free(t);
+}
+
+void nodeprint(int indent, tnode* n) {
+	if(!n) return;
+	for(int i = 0; i < indent; i++) printf(" ");
+	printf("%c\n", n->k);
+	nodeprint(indent+1, n->down);
+	nodeprint(indent, n->next);
+}
+
+void trieprint(trie* t) {
+	nodeprint(0, t->root);
 }
