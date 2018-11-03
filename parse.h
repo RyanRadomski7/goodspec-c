@@ -44,4 +44,6 @@ pstrat* newpstrat(parser* p, pfn f);
 
 sexp* parse(parser* p, list* tks);
 
+void sexpprint(sexp* s);
+
 #endif

@@ -90,14 +90,16 @@ int main() {
 	addmatcher(t, &opmmatch);
 	addmatcher(t, &cpmmatch);
 	addmatcher(t, &symmatch);
-	list* tks = tokenize(t, "(+ (+ 2 3) 5)");
+	list* tks = tokenize(t, "(+ (+ 2 foobar) 5)");
 	
 	parser* p = newparser(parse);
 	addstrat(p, "symbol", &symp);
 	addstrat(p, "(", &opp);
 	sexp* s = parse(p, tks);
 	sexpprint(s);
-
+	
+	
+	
 	listwalk(tks, (void*)tokendelete);
 	listdelete(tks);
 	listdelete(t->matchers);
