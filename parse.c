@@ -91,3 +91,17 @@ void sexpprint(sexp* s) {
 	sexpprintiter(s);
 	printf("\n");
 }
+
+parser* gsnewparser() {
+	parser* p = newparser(parse);
+	addstrat(p, "symbol", &symp);
+	addstrat(p, "(", &opp);
+	return p;
+}
+
+void gsparserdelete(parser* p) {
+	free(triepop(p->strats, "symbol"));
+	free(triepop(p->strats, "("));
+	triedelete(p->strats);
+	free(p);
+}

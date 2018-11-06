@@ -2,7 +2,7 @@
 #define TRIE_H
 
 #include <stdlib.h>
-#include "pgs.h"
+#define nil ((void*)0)
 
 typedef struct tnode tnode;
 

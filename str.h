@@ -1,3 +1,6 @@
+#ifndef STRING_H
+#define STRING_H
+
 #include <stdlib.h>
 
 typedef struct {
@@ -8,3 +11,5 @@ typedef struct {
 string* newstring(char* s);
 void stringdelete(string* s);
 void stringprint(string* s);
+
+#endif

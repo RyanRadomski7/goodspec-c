@@ -46,4 +46,12 @@ sexp* parse(parser* p, list* tks);
 
 void sexpprint(sexp* s);
 
+sexp* newsexpt(token* t);
+
+sexp* newsexpl(list* l);
+
+parser* gsnewparser();
+
+void gsparserdelete(parser* p);
+
 #endif

@@ -63,8 +63,9 @@ void* listnth(list* l, int n) {
 	return nthcell ? nthcell->data : nil;
 }
 
-void listwalk(list* l, void (*f)(void* d)) {
-	for(cell* c = l->head; c; c = c->next) f(c->data);
+void listwalk(list* l, void* f) {
+	void (*fp)(void*) = f;
+	for(cell* c = l->head; c; c = c->next) fp(c->data);
 }
 
 void* listasarray(list* l) {
@@ -75,6 +76,13 @@ void* listasarray(list* l) {
 	}
 	return (void*)a;
 }
-void listclosurewalk(list* l, closure f) {
-	for(cell* c = l->head; c; c = c->next) f(f, c->data);
+
+void listclosurewalk(list* l, closure* f) {
+	for(cell* c = l->head; c; c = c->next) closurecall(f, c->data);
+}
+
+list* listclosuremap(list* l, closure* f) {
+	list* nl = newlist();
+	for(cell* c = l->head; c; c = c->next) listadd(nl, closurecall(f, c->data));
+	return nl;
 }
