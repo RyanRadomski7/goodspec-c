@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "eval.h"
 #include "closure.h"
+#include "load.h"
 
 char* itos(int n) {
 	int mag = 32, len, i;
@@ -60,16 +61,11 @@ void* evals(envc* this, char* s) {
 	return trieget(symbols, s);
 }
 
-void load(envc* this, list* exp) {
-	printf("sfdsf\n");
-	listpop(exp);
-}
-
 trie* gsnewenv() {
 	trie* env = newtrie();
 	trieinsert(env, "symbols", newtrie());
 	trieinsert(env, "evals", newtrie());
-	addto(env, "symbols", "load", newenvc(load, env));
+	addto(env, "symbols", "load", newenvc(loadmodule, env));
 	addto(env, "evals", "symbol", newenvc(evals, env));
 	return env;
 }

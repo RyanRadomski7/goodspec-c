@@ -5,11 +5,13 @@ trie* newgs() {
 	trie* env = gsnewenv();
 	trieinsert(env, "p", gsnewparser());
 	trieinsert(env, "t", gsnewtokenizer());
+	trieinsert(env, "modules", newtrie());
 	return env;
 }
 
 void gsdelete(trie* env) {
 	gsparserdelete(trieget(env, "p"));
 	tokenizerdelete(trieget(env, "t"));
+	triedelete(trieget(env, "modules"));
 	gsenvdelete(env);
 }
