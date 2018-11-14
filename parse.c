@@ -15,6 +15,14 @@ sexp* newsexpl(list* l) {
 	return s;
 }
 
+void sexpdelete(sexp* s) {
+	if(s->type == list_t) {
+		listwalk(s->data, (void*)sexpdelete);
+		listdelete(s->data);
+	} else tokendelete(s->data);
+	free(s);
+}
+
 parser* newparser(void* fn) {
 	parser* p = malloc(sizeof(parser));
 	p->parse = fn;

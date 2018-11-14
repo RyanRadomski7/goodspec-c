@@ -50,6 +50,8 @@ sexp* newsexpt(token* t);
 
 sexp* newsexpl(list* l);
 
+void sexpdelete(sexp* s);
+
 parser* gsnewparser();
 
 void gsparserdelete(parser* p);

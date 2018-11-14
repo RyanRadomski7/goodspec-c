@@ -36,12 +36,15 @@ void* evall(trie* env, list* l) {
 	void* fsexp = listpop(l);
 	void* fn = eval(env, fsexp);
 	free(fsexp);
-	return closurecall(fn, l);
+	void* r = closurecall(fn, l);
+	listdelete(l);
+	return r;
 }
 
 void* eval(trie* env, sexp* s) {
-	if(s->type == token_t) return evalt(env, s->data);
-	return evall(env, s->data);
+	return s->type == token_t ?
+		evalt(env, s->data) :
+		evall(env, s->data);
 }
 
 envc* newenvc(void* f, void* env) {
@@ -66,6 +69,7 @@ trie* gsnewenv() {
 	trieinsert(env, "symbols", newtrie());
 	trieinsert(env, "evals", newtrie());
 	addto(env, "symbols", "load", newenvc(loadmodule, env));
+	addto(env, "symbols", "close", newenvc(closemodule, env));
 	addto(env, "evals", "symbol", newenvc(evals, env));
 	return env;
 }
@@ -74,6 +78,7 @@ void gsenvdelete(trie* env) {
 	trie* symbols = triepop(env, "symbols");
 	trie* evals = triepop(env, "evals");
 	free(triepop(symbols, "load"));
+	free(triepop(symbols, "close"));
 	free(triepop(evals, "symbol"));
 	triedelete(symbols);
 	triedelete(evals);
