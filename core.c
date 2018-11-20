@@ -1,11 +1,9 @@
-#include <dlfcn.h>
-#include <stdio.h>
 #include "pgs.h"
 #include "trie.h"
 #include "list.h"
 #include "token.h"
 #include "parse.h"
-#include "load.h"
+#include "eval.h"
 
 int main() {
 	trie* env = newgs();
