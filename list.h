@@ -20,6 +20,7 @@ typedef struct {
 
 list* newlist();
 void listdelete(list* l);
+void listdeepdelete(list* l, void* de);
 
 void listadd(list* l, void* data);
 void listpush(list* l, void* data);

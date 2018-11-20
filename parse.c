@@ -16,10 +16,9 @@ sexp* newsexpl(list* l) {
 }
 
 void sexpdelete(sexp* s) {
-	if(s->type == list_t) {
-		listwalk(s->data, (void*)sexpdelete);
-		listdelete(s->data);
-	} else tokendelete(s->data);
+	if(s->type == list_t) 
+		listdeepdelete(s->data, sexpdelete);
+	else tokendelete(s->data);
 	free(s);
 }
 
@@ -30,27 +29,31 @@ parser* newparser(void* fn) {
 	return p;
 }
 
+/* symbol parse */
 sexp* symp(closure p, list* tks) {
 	token* sym = listpop(tks);
 	return newsexpt(sym);
 }
 
+/* close expression */
 list* clsexp(list* exp, list* tks) {
-	listpop(tks);
+	tokendelete(listpop(tks));
 	return exp;
 }
 
+/* slurp expression */
 list* slsexp(parser* p, list* exp, list* tks) {
 	token* tk = tks->head->data;
 	string* t = tk->type;
-	if(t->length==1 && t->val[0]==')') return clsexp(exp, tks);
+	if(t->length==1 && t->val[0]==')') 
+		return clsexp(exp, tks);
 	listadd(exp, closurecall(&p->parse, tks));
 	return slsexp(p, exp, tks);
 }
 
 sexp* opp(closure this, list* tks) {
 	pstrat* s = (pstrat*)this;
-	listpop(tks);
+	tokendelete(listpop(tks));
 	return newsexpl(slsexp(s->p, newlist(), tks));
 }
 

@@ -21,6 +21,12 @@ void listdelete(list* l) {
 	free(l);
 }
 
+void listdeepdelete(list* l, void* de) {
+	listwalk(l, de);
+	for(cell* c = l->head; c; c = l->head) listpop(l);
+	free(l);
+}
+
 void listadd(list* l, void* data) {
 	cell* add = newcell(data);
 	if(l->head) {

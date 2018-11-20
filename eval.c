@@ -29,22 +29,22 @@ o* newo(int type, void* data) {
 void* evalt(trie* env, token* t) {
 	trie* evals = trieget(env, "evals");
 	closure* f = trieget(evals, t->type->val);
-	return closurecall(f, t->val->val);
-}
-
-void* evall(trie* env, list* l) {
-	void* fsexp = listpop(l);
-	void* fn = eval(env, fsexp);
-	free(fsexp);
-	void* r = closurecall(fn, l);
-	listdelete(l);
+	void* r = closurecall(f, t->val->val);
 	return r;
 }
 
+void* evall(trie* env, list* l) {
+	void* s = listpop(l);
+	void* fn = eval(env, s);
+	return closurecall(fn, l);
+}
+
 void* eval(trie* env, sexp* s) {
-	return s->type == token_t ?
+	void* r = s->type == token_t ?
 		evalt(env, s->data) :
 		evall(env, s->data);
+	sexpdelete(s);
+	return r;
 }
 
 envc* newenvc(void* f, void* env) {

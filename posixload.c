@@ -7,16 +7,24 @@
 #include "eval.h"
 #include "util.h"
 
-typedef void (*consumer)(void*);
-
 void runmodule(trie* env, void* handle) {
     consumer mf = dlsym(handle, "init");
+    mf(env);
+}
+
+void runmoduleclose(trie* env, void* handle) {
+    consumer mf = dlsym(handle, "close");
     mf(env);
 }
 
 void* getmodule(envc* this, string* lib) {
 	trie* modules = trieget(this->env, "modules");
 	return trieget(modules, lib->val);
+}
+
+void* popmodule(envc* this, string* lib) {
+	trie* modules = trieget(this->env, "modules");
+	return triepop(modules, lib->val);
 }
 
 void loadmodule(envc* this, list* args) {
@@ -32,7 +40,9 @@ int moduleloaded(envc* this, list* args) {
 }
 
 void closemodule(envc* this, list* args) {
-	dlclose(getmodule(this, strarg1(args)));
+	void* handle = popmodule(this, strarg1(args));
+	runmoduleclose(this->env, handle);
+	dlclose(handle);
 }
 
 #endif
