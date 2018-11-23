@@ -16,6 +16,7 @@ typedef struct {
 token* newtoken(string* val, string* type);
 token* newtokenc(char* val, char* type);
 token* match(matcher* m, char* s);
+char* newchar(char c);
 
 void tokendelete(token* m);
 void tokenprint(token* t);

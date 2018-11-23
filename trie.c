@@ -62,12 +62,24 @@ tnode* nodepush(tnode* n, char k) {
 	return f;
 }
 
+tnode* nodeinsert(tnode* n, const char* k, void* data);
+
+void delve(tnode* n, const char* k, void* data) {
+	if(k[1]) n->down = nodeinsert(n->down, k+1, data);
+	else n->data = data;
+}
+
+tnode* missing(tnode* n, const char* k, void* data) {
+	tnode* f = nodepush(n, *k);
+	delve(f, k, data);
+	return f;
+}
+
 tnode* nodeinsert(tnode* n, const char* k, void* data) {
 	tnode* f = nodeinlevel(n, *k);
-	if(!f) f = nodepush(n, *k);
-	if(*(k + 1)) f->down = nodeinsert(f->down, k + 1, data);
-	else f->data = data;
-	return f;
+	if(!f) return missing(n, k, data);
+	delve(f, k, data);
+	return n;
 }
 
 void trieinsert(trie* t, const char* k, void* data) {

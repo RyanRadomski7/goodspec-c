@@ -22,5 +22,6 @@ void triedelete(trie* t);
 void trieinsert(trie* t, const char* k, void* data);
 void* trieget(trie* t, const char* k);
 void* triepop(trie* t, const char* k);
+void trieprint(trie* t);
 
 #endif

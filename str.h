@@ -11,5 +11,6 @@ typedef struct {
 string* newstring(char* s);
 void stringdelete(string* s);
 void stringprint(string* s);
+int slen(char* s);
 
 #endif

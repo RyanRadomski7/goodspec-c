@@ -10,7 +10,7 @@ int slen(char* s) {
 string* newstring(char* s) {
 	string* ns = malloc(sizeof(string));
 	ns->length = slen(s);
-	ns->val = malloc(sizeof(ns->length + 1));
+	ns->val = malloc(sizeof(char) * (ns->length+1));
 	for(int i = 0; i < ns->length+1; i++)
 		ns->val[i] = s[i];
 	return ns;
