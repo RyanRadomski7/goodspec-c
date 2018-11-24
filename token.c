@@ -30,20 +30,16 @@ void tokenprint(token* t) {
 
 #define ws(c) (c==' '||c=='\t'||c=='\n'||c=='\v'||c=='\f'||c=='\r')
 
-token* opmmatch(char* s) {
-	if(*s != '(') return nil;
-	return newtoken(newstring("("), newstring("("));
-}
+typedef struct {
+	closure* f;
+	tokenizer* t;
+} tokenizerc;
 
-token* cpmmatch(char* s) {
-	if(*s != ')') return nil;
-	return newtoken(newstring(")"), newstring(")"));
-}
-
-char* newchar(char c) {
-	char* n = malloc(sizeof(char));
-	*n = c;
-	return n;
+tokenizerc* newtokenizerc(void* f, tokenizer* t) {
+	tokenizerc* c = malloc(sizeof(tokenizerc));
+	c->f = f;
+	c->t = t;
+	return c;
 }
 
 char* listtostr(list* l) {
@@ -56,14 +52,35 @@ char* listtostr(list* l) {
 	return a;
 }
 
-token* symmatch(char* s) {
-	if(s[0] == '(' || s[0] == ')' || ws(s[0])) return nil;
+token* opmmatch(void* this, list* s) {
+	if(*(char*)s->head->data != '(') return nil;
+	tokenizerc* c = this;
+	c->t->balance++;
+	listpop(s);
+	return newtoken(newstring("("), newstring("("));
+}
+
+token* cpmmatch(void* this, list* s) {
+	if(*(char*)s->head->data != ')') return nil;
+	tokenizerc* c = this;
+	c->t->balance--;
+	listpop(s);
+	return newtoken(newstring(")"), newstring(")"));
+}
+
+token* symmatch(void* this, list* s) {
+	char* head = s->head->data;
+	if(*head == '(' || *head == ')' || ws(*head)) return nil;
+	listpop(s);
 	list* l = newlist();
-	listadd(l, newchar(s[0]));
-	for(int i = 1; s[i] && !ws(s[i]); i++) {
-		if(s[i] == '(' || s[i] == ')') break;
-		listadd(l, newchar(s[i]));
+	listadd(l, newchar(*head));
+
+	for(char* c = listnth(s, 0);;c = listnth(s, 0)) {
+		if(!*c || ws(*c) || *c=='(' || *c== ')') break;
+		listpop(s);
+		listadd(l, newchar(*c));
 	}
+
 	listadd(l, newchar('\0'));
 	char* val = listtostr(l);
 	listwalk(l, free);
@@ -71,6 +88,12 @@ token* symmatch(char* s) {
 	token* r = newtoken(newstring(val), newstring("symbol")); 
 	free(val);
 	return r;
+}
+
+char* newchar(char c) {
+	char* n = malloc(sizeof(char));
+	*n = c;
+	return n;
 }
 
 tokenizer* newtokenizer() {
@@ -81,28 +104,44 @@ tokenizer* newtokenizer() {
 
 tokenizer* gsnewtokenizer() {
 	tokenizer* t = newtokenizer();
-	listadd(t->matchers, (void*)&opmmatch);
-	listadd(t->matchers, (void*)&symmatch);
-	listadd(t->matchers, (void*)&cpmmatch);
+	t->balance = 0;
+	listadd(t->matchers, newtokenizerc(&opmmatch, t));
+	listadd(t->matchers, newtokenizerc(&cpmmatch, t));
+	listadd(t->matchers, newtokenizerc(&symmatch, t));
 	return t;
 }
 
-list* tokenize(tokenizer* t, char* s) {
-	list* tokens = newlist();
-	for(char* sp = s; *sp;) {
-		for(;ws(*sp) && (*sp); sp++);
-		s = sp;
-		for(cell* c = t->matchers->head; c && *sp; c = c->next) {
-			token* tp = match(c->data, sp);
-			if(!tp) continue;
-			listadd(tokens, tp);
-			sp += tp->val->length;
-		}
+token* searchmatch(tokenizer* t, list* s) {
+	for(cell* c = t->matchers->head; c; c = c->next) {
+		closure* f = c->data;
+		token* t = closurecall(f, s);
+		if(t) return t;
 	}
-	return tokens;
+	return nil;
+}
+
+void removews(list* s) {
+	for(;;listpop(s)) {
+		char* s0 = listnth(s, 0);
+		if(!s0 || !ws(*s0)) return;
+	}
+}
+
+list* tokenize(tokenizer* t, list* s) {
+	list* tks = newlist();
+	for(;s->length;) {
+		removews(s);
+		if(!s->length) break;
+		token* tk = searchmatch(t, s);
+		if(!t) return tks;
+		listadd(tks, tk);
+		if(!t->balance) break;
+	}
+	return tks;
 }
 
 void tokenizerdelete(tokenizer* t) {
+	listwalk(t->matchers, free);
 	listdelete(t->matchers);
 	free(t);
 }

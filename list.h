@@ -27,6 +27,8 @@ void listpush(list* l, void* data);
 void* listpoplast(list* l);
 void* listpop(list* l);
 void* listnth(list* l, int n);
+void concat(list* a, list* b);
+list* copy(list*);
 void listwalk(list* l, void* f);
 void listclosurewalk(list* l, closure* c);
 void* listasarray(list* l);

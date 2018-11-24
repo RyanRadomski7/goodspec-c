@@ -69,6 +69,17 @@ void* listnth(list* l, int n) {
 	return nthcell ? nthcell->data : nil;
 }
 
+void concat(list* a, list* b) {
+	for(;b->length;) listadd(a, listpop(b));
+	listdelete(b);
+}
+
+list* copy(list* l) {
+	list* n = newlist();
+	for(cell* c = l->head; c; c = c->next) listadd(n, c->data);	
+	return n;
+}
+
 void listwalk(list* l, void* f) {
 	void (*fp)(void*) = f;
 	for(cell* c = l->head; c; c = c->next) fp(c->data);

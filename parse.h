@@ -33,27 +33,16 @@ struct sexp {
 };
 
 parser* newparser(void* fn);
-
 sexp* symp(closure p, list* tks);
-
 sexp* opp(closure p, list* tks);
-
 void addstrat(parser* p, const char* name, pfn f);
-
 pstrat* newpstrat(parser* p, pfn f);
-
 sexp* parse(parser* p, list* tks);
-
 void sexpprint(sexp* s);
-
 sexp* newsexpt(token* t);
-
 sexp* newsexpl(list* l);
-
 void sexpdelete(sexp* s);
-
 parser* gsnewparser();
-
 void gsparserdelete(parser* p);
 
 #endif
