@@ -43,6 +43,7 @@ list* clsexp(list* exp, list* tks) {
 
 /* slurp expression */
 list* slsexp(parser* p, list* exp, list* tks) {
+	if(!(tks->length && tks->head->data)) return nil;
 	token* tk = tks->head->data;
 	string* t = tk->type;
 	if(t->length==1 && t->val[0]==')') 
@@ -54,7 +55,8 @@ list* slsexp(parser* p, list* exp, list* tks) {
 sexp* opp(closure this, list* tks) {
 	pstrat* s = (pstrat*)this;
 	tokendelete(listpop(tks));
-	return newsexpl(slsexp(s->p, newlist(), tks));
+	list* l = slsexp(s->p, newlist(), tks);
+	return l ? newsexpl(l) : nil;
 }
 
 pstrat* newpstrat(parser* p, pfn f) {
@@ -99,6 +101,7 @@ void sexpprintiter(sexp* s) {
 }
 
 void sexpprint(sexp* s) {
+	if(!s) return;
 	sexpprintiter(s);
 	printf("\n");
 }

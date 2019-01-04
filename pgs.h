@@ -2,6 +2,8 @@
 #define PGS_H
 
 #include "trie.h"
+#include "token.h"
+#include "parse.h"
 #define nil ((void*)0)
 
 typedef struct {
@@ -14,8 +16,8 @@ typedef struct {
 	void* b;
 } triple;
 
-trie* newgs();
+trie* newenv();
 
-void gsdelete(trie* env);
+void envdelete(trie* env);
 
 #endif

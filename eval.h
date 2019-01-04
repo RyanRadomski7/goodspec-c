@@ -32,4 +32,7 @@ trie* gsnewenv();
 
 void gsenvdelete(trie* env);
 
+/* to make the evaluator compatible with the closure interface */
+void gsevaluator(envc* this, sexp* s);
+
 #endif

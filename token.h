@@ -5,12 +5,12 @@
 #include "list.h"
 
 typedef struct {
-	string* val;
-	string* type;
+  string* val;
+  string* type;
 } token;
 
 typedef struct {
-	token* (*match)(void*, char*);
+  token* (*match)(void*, char*);
 } matcher;
 
 token* newtoken(string* val, string* type);
@@ -22,10 +22,12 @@ int tokenbalance(list* tks);
 void tokendelete(token* m);
 void tokenprint(token* t);
 void tokenprints(token* t);
+token* tokencopy(token* t);
 
 typedef struct {
-	int balance;
-	list* matchers;
+	list* (*tokenize)(void*, list*);
+  int balance;
+  list* matchers;
 } tokenizer;
 
 tokenizer* newtokenizer();

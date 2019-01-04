@@ -1,4 +1,3 @@
-#include "pgs.h"
 #include "list.h"
 
 list* newlist() {
@@ -69,20 +68,21 @@ void* listnth(list* l, int n) {
 	return nthcell ? nthcell->data : nil;
 }
 
-void concat(list* a, list* b) {
+void listconcat(list* a, list* b) {
 	for(;b->length;) listadd(a, listpop(b));
 	listdelete(b);
 }
 
-list* copy(list* l) {
+list* listcopy(list* l) {
 	list* n = newlist();
 	for(cell* c = l->head; c; c = c->next) listadd(n, c->data);	
 	return n;
 }
 
-void listwalk(list* l, void* f) {
+list* listwalk(list* l, void* f) {
 	void (*fp)(void*) = f;
 	for(cell* c = l->head; c; c = c->next) fp(c->data);
+	return l;
 }
 
 void* listasarray(list* l) {
@@ -92,6 +92,12 @@ void* listasarray(list* l) {
 		ap++;
 	}
 	return (void*)a;
+}
+
+list* listmap(list* l, void* (*f)(void*)) {
+	list* new = newlist();
+	for(cell* c = l->head; c; c = c->next) listadd(new, f(c->data));
+	return new;
 }
 
 void listclosurewalk(list* l, closure* f) {

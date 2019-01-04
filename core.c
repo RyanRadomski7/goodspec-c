@@ -10,41 +10,65 @@
 #include "eval.h"
 
 typedef unsigned long lu;
-tnode* nodepush(tnode* n, char k);
-tnode* missing(tnode* n, const char* k, void* data);
 
-/* void printchar(char* c) { */
-/* 	printf("%c", *c); */
-/* } */
+list* stol(char* s) {
+	list* l = newlist();
+	for(int i = 0; s[i]; i++) listadd(l, &s[i]);
+	return l;
+}
+
+typedef struct {
+	char* buf;
+	int bs;
+	int fd;
+	list* tks;
+	trie* env;
+} reader;
+
+void* envcall(trie* env, char* k, void* x) {
+	return closurecall(trieget(env, k), x);
+}
+
+/* tokenize buffer */
+void tbuf(reader* r) {
+	list* code = stol(r->buf);
+	for(;code->length;) 
+		listconcat(r->tks, envcall(r->env, "t", code));
+	listdelete(code);
+}
+
+int tokensvalid(reader* r) {
+	list* tmp = listmap(r->tks, (void*)tokencopy);
+	sexp* s = envcall(r->env, "p", tmp);
+	int result = s != 0;
+	if(s) sexpdelete(s);
+	listdelete(listwalk(tmp, tokendelete));
+	return result;
+}
+
+int prompt(reader* r) {
+	if(!(read(r->fd, r->buf, r->bs) || r->tks->length)) return 0;
+	tbuf(r);
+	if(!tokensvalid(r)) return 1;
+	for(sexp* s; r->tks->length && (s = envcall(r->env, "p", r->tks));)
+		envcall(r->env, "e", s);
+	return 1;
+}
+
+void readerdelete(reader* r) {
+	listdelete(listwalk(r->tks, tokendelete));
+	envdelete(r->env);
+	free(r->buf);
+}
 
 int main(int argc, char* argv[]) {
 	if(argc != 3) exit(EINVAL);
-	int fd = atoi(argv[1]);
-	int bs = atoi(argv[2]);
-	char* buff = malloc(sizeof(char) * bs);
-	trie* env = newgs();
-
-	list* code = newlist();
-	for(;read(fd, buff, bs);)
-		for(char* c=buff; *c; c++)
-			listadd(code, newchar(*c));
-
-	list* codecopy = copy(code);
-	for(;code->length;) {
-		list* tks = tokenize(trieget(env, "t"), code);
-		if(tks->length) {	
-			sexp* s = closurecall(trieget(env, "p"), tks);
-			sexpprint(s);
-			eval(env, s);
-		}
-		listwalk(tks, tokendelete);
-		listdelete(tks);
-	}
-
-	listwalk(codecopy, free);
-	listdelete(code);
-	listdelete(codecopy);
-	free(buff);
-	
-	gsdelete(env);
+	reader r;
+	r.fd = atoi(argv[1]);
+	r.bs = atoi(argv[2]);
+	r.buf = malloc(sizeof(char) * r.bs);
+	r.tks = newlist();
+	r.env = newenv();
+	for(;prompt(&r););
+	readerdelete(&r);
 }

@@ -64,10 +64,15 @@ void* evals(envc* this, char* s) {
 	return trieget(symbols, s);
 }
 
+void gsevaluator(envc* this, sexp* s) {
+	eval(this->env, s);
+}
+
 trie* gsnewenv() {
 	trie* env = newtrie();
 	trieinsert(env, "symbols", newtrie());
 	trieinsert(env, "evals", newtrie());
+	trieinsert(env, "modules", newtrie());
 	addto(env, "symbols", "load", newenvc(loadmodule, env));
 	addto(env, "symbols", "close", newenvc(closemodule, env));
 	addto(env, "evals", "symbol", newenvc(evals, env));
@@ -77,10 +82,14 @@ trie* gsnewenv() {
 void gsenvdelete(trie* env) {
 	trie* symbols = triepop(env, "symbols");
 	trie* evals = triepop(env, "evals");
+	trie* modules = triepop(env, "modules");
 	free(triepop(symbols, "load"));
 	free(triepop(symbols, "close"));
 	free(triepop(evals, "symbol"));
+	free(triepop(modules, "load"));
+	free(triepop(modules, "close"));
 	triedelete(symbols);
 	triedelete(evals);
+	triedelete(modules);
 	triedelete(env);
 }

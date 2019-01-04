@@ -2,8 +2,9 @@
 #define LIST_H
 
 #include <stdlib.h>
-#include "pgs.h"
 #include "closure.h"
+
+#define nil ((void*)0)
 
 typedef struct cell cell;
 
@@ -27,11 +28,13 @@ void listpush(list* l, void* data);
 void* listpoplast(list* l);
 void* listpop(list* l);
 void* listnth(list* l, int n);
-void concat(list* a, list* b);
-list* copy(list*);
-void listwalk(list* l, void* f);
+list* listcopy(list*);
+list* listwalk(list* l, void* f);
 void listclosurewalk(list* l, closure* c);
 void* listasarray(list* l);
+list* listmap(list* l, void* (*f)(void*));
 list* listclosuremap(list* l, closure* c);
+void listconcat(list* a, list* b);
+
 
 #endif
